@@ -1,0 +1,48 @@
+
+server:
+  port: ${SERVER_PORT:5556}
+  servlet:
+    context-path: /api/ms-product/v1
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://${EUREKA_HOST_URL:localhost}:${EUREKA_PORT:3999}/eureka
+
+spring:
+  application:
+    name: product-service
+  datasource:
+    url: jdbc:postgresql://${POSTGRES_HOST:localhost}:${POSTGRES_PORT:5432}/${POSTGRES_DB:productsdb}?useSSL=true
+    username: ${POSTGRES_USER:postgres}
+    password: ${POSTGRES_PASSWORD:postgres}
+
+  jpa:
+   database: postgresql
+   hibernate:
+    ddl-auto: update
+
+rabbitmq:
+  host: ${RABBIT_MQ_HOST_NAME:localhost}
+  port: ${RABBIT_MQ_PORT:5672}
+  username: ${RABBIT_MQ_USER:guest}
+  password: ${RABBIT_MQ_PASSWORD:guest}
+  listener:
+    direct:
+    acknowledge-mode: manual
+
+amqp:
+  bindings:
+    -
+      exchange: product.events
+      routingKey: product.status-created
+      queue: product.status-created.product-service
+
+  queues:
+    product_created: product.status-created.product-service
+
+  routingKey:
+    product_created_event: product.status-created
+
+  exchanges:
+    product_events: product.events
